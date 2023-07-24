@@ -3,7 +3,6 @@ import Content from '../../components/Content'
 import { IShelf } from '../../types/Interfaces';
 import { BiSearch } from 'react-icons/bi'
 import { useNavigate } from 'react-router-dom';
-import { data } from '../../assets/data/data';
 import { LibraryApi } from '../../api/libraryApi';
 
 
@@ -15,7 +14,7 @@ const Shelves = () => {
 
     const shelveColumns = [
         {
-            header: 'Raf ID',
+            header: 'Raf Kodu',
             accessor: 'code',
             width: "10%"
         },

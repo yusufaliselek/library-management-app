@@ -8,12 +8,16 @@ export const getShelves = async (req, res) => {
         const shelves = await Shelf.find();
         for (let i = 0; i < shelves.length; i++) {
             const parts = await Part.find({ shelfId: shelves[i]._id });
+            let totalQuantity = 0;
+            for (let j = 0; j < parts.length; j++) {
+                totalQuantity += Number(parts[j].quantity);
+            }
             result.push({
                 id: shelves[i]._id,
                 name: shelves[i].name,
                 description: shelves[i].description,
                 code: shelves[i].code,
-                parts: parts.length
+                parts: totalQuantity
             })
         }
 
@@ -28,8 +32,14 @@ export const getShelves = async (req, res) => {
 export const getShelfById = async (req, res) => {
     try {
         const shelf = await Shelf.findById(req.params.id);
+        const result = {
+            id: shelf._id,
+            name: shelf.name,
+            description: shelf.description,
+            code: shelf.code
+        };
 
-        res.status(200).json(shelf);
+        res.status(200).json(result);
     } catch (error) {
         res.status(404).json({
             message: error.message

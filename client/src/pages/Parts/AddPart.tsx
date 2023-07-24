@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Content from '../../components/Content';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
 import Base64 from '../../components/Base64';
 import { LibraryApi } from '../../api/libraryApi';
+import { IShelf } from '../../types/Interfaces';
 
 const shelfInfoLabel = [
 
@@ -45,6 +46,14 @@ const AddPart = () => {
 
     // State tanımlamaları
     const [formValues, setFormValues] = useState(shelfParams);
+    const [shelves, setShelves] = useState<IShelf[]>([]);
+
+    // Raf bilgilerini çekme
+    useEffect(() => {
+        LibraryApi.getShelves().then((response) => {
+            setShelves(response)
+        })
+    }, []);
 
 
     // Giriş alanlarındaki değerler değiştikçe state'i güncelleme
@@ -57,6 +66,7 @@ const AddPart = () => {
         e.preventDefault();
         LibraryApi.createPart(formValues).then((res: any) => {
             alert("Parça başarıyla eklendi");
+            navigate("/parts");
         }).catch((err: any) => {
             alert("Parça eklenirken bir hata oluştu");
         })
@@ -76,7 +86,7 @@ const AddPart = () => {
                                 <AiOutlineArrowLeft />
                             </div>
                         </div>
-                        <h1 className='text-3xl font-mono text-center text-gray-600'>Raf Ekle</h1>
+                        <h1 className='text-3xl font-mono text-center text-gray-600'>Parça Ekle</h1>
                         {
                             shelfInfoLabel.map((item) => (
                                 <div className='sm:w-5/6 2xl:w-1/2 mt-4' key={item.name}>
@@ -97,10 +107,13 @@ const AddPart = () => {
                             <select onChange={handleChange} defaultValue={shelfParams.shelfId}
                                 name="shelfId" className="w-full h-10 font-mono border border-gray-400 focus:border-green-600 focus:border-2 focus:outline-none px-3">
                                 <option disabled value={"-1"}>Raf Seçiniz</option>
-                                <option value={"1"}>United States</option>
-                                <option value={"2"}>Canada</option>
-                                <option value={"3"}>France</option>
-                                <option value={"4"}>Germany</option>
+                                {
+                                    Array.from(shelves).map((item) => {
+                                        return (
+                                            <option key={item.id} value={item.id}>{item.name}</option>
+                                        )
+                                    })
+                                }
                             </select>
                         </div>
                         <div className='mt-2'>

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Content from '../../components/Content';
-import { data } from '../../assets/data/data';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
 import { LibraryApi } from '../../api/libraryApi';
 
 type ShelfParamType = {
-    _id: string;
+    id: string;
+    code: string;
     name: string;
     description: string;
 };
@@ -16,7 +16,11 @@ type ShelfInfoKey = keyof ShelfParamType;
 const shelfInfoLabel: { label: string; name: ShelfInfoKey }[] = [
     {
         label: 'Raf ID',
-        name: '_id',
+        name: 'id',
+    },
+    {
+        label: 'Raf Kodu',
+        name: 'code',
     },
     {
         label: 'Raf Adı',
@@ -29,7 +33,8 @@ const shelfInfoLabel: { label: string; name: ShelfInfoKey }[] = [
 ];
 
 const shelfParam: ShelfParamType = {
-    _id: '',
+    id: '',
+    code: '',
     name: '',
     description: '',
 };
@@ -55,7 +60,20 @@ const ShelfDetails = () => {
 
     const formSubmit = (e: any) => {
         e.preventDefault();
-        console.log(shelfInfo);
+        const fromSend = {
+            id: shelfInfo.id,
+            name: shelfInfo.name,
+            code: shelfInfo.code,
+            description: shelfInfo.description,
+        };
+        LibraryApi.updateShelf(fromSend).then((res) => {
+            navigate('/shelves');
+            console.log(res);
+        }).catch((err) => {
+            alert('Raf güncellenirken bir hata oluştu!')
+            console.log(err);
+        });
+
     };
 
     return (
@@ -85,7 +103,8 @@ const ShelfDetails = () => {
                                             value={shelfInfo[name]}
                                             className='w-full h-10 font-mono border border-gray-400 focus:border-green-600 focus:border-2 focus:outline-none px-3'
                                             onChange={handleChange}
-                                            {...(name === '_id' && { disabled: true })}
+                                            {...(name === 'id' && { disabled: true })}
+                                            required
                                         />
                                     </div>
                                 );
@@ -104,6 +123,9 @@ const ShelfDetails = () => {
                         transition duration-100 ease-in-out mt-4'
                             onClick={() => {
                                 const confirm = window.confirm('Rafı silmek istediğinize emin misiniz?');
+                                if (confirm) {
+                                    alert('Raf silindi!');
+                                }
                             }}
                         >
                             Sil

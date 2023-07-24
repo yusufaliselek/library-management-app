@@ -43,6 +43,16 @@ export class LibraryApi {
         });
     }
 
+    public static async ChangePartQuantity(partId: string, quantity: number): Promise<any> {
+        return new Promise((resolve, reject) => {
+            ConfigApi.LibraryApi().put(`parts/${partId}/quantity`, { quantity: quantity }).then((response) => {
+                resolve(response.data);
+            }).catch((error) => {
+                reject(error);
+            });
+        });
+    }
+
     // SHELFS API
     public static async getShelves(): Promise<any> {
         return new Promise((resolve, reject) => {

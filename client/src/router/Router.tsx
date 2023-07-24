@@ -7,6 +7,7 @@ import NotFound from '../pages/NotFound/NotFound'
 import ShelfDetails from '../pages/Shelves/ShelfDetails'
 import AddShelf from '../pages/Shelves/AddShelf';
 import AddPart from '../pages/Parts/AddPart';
+import PartDetail from '../pages/Parts/PartDetail';
 
 const AppRouter = () => {
     return (
@@ -25,6 +26,7 @@ const AppRouter = () => {
 
                 {/* Parts */}
                 <Route path="/parts" element={<Parts />} />
+                <Route path="/parts/:id" element={<PartDetail />} />
                 <Route path="/parts/add" element={<AddPart />} />
 
 

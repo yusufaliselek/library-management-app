@@ -3,14 +3,17 @@ import Content from '../../components/Content'
 import { BiSearch } from 'react-icons/bi'
 import { useNavigate } from 'react-router-dom';
 import { LibraryApi } from '../../api/libraryApi';
+import DialogTitle from '@mui/material/DialogTitle';
+import Dialog from '@mui/material/Dialog';
 
 interface Part {
-  _id: number,
+  id: string,
   code: string,
   name: string,
   description: string,
   quantity: string,
-  shelfId: string
+  shelfId: string,
+  shelfName: string,
   image: string
 
 }
@@ -28,13 +31,13 @@ const partColumns = [
   },
   {
     header: "Raf Adı",
-    accessor: 'shelfId',
+    accessor: 'shelfName',
     width: "10%"
   },
   {
     header: 'Parça Açıklaması',
     accessor: 'description',
-    width: "40%"
+    width: "35%"
   },
   {
     header: 'Parça Sayısı',
@@ -44,7 +47,7 @@ const partColumns = [
   {
     header: 'İşlemler',
     accessor: 'actions',
-    width: "10%"
+    width: "15%"
   }
 ]
 
@@ -54,6 +57,10 @@ const Parts = () => {
 
   const [searchParts, setSearchParts] = useState<Part[] | null>(null)
   const [parts, setParts] = useState<Part[] | null>(null)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [selectedPart, setSelectedPart] = useState<Part | null>(null)
+  const [isIncrement, setIsIncrement] = useState<boolean>(false)
+  const [quantity, setQuantity] = useState<number>(0)
 
   useEffect(() => {
     LibraryApi.getParts().then((res: any) => {
@@ -63,7 +70,45 @@ const Parts = () => {
   }, [])
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(parts)
+  }
 
+  const resetDialog = () => {
+    setIsOpen(false)
+    setSelectedPart(null)
+    setQuantity(0)
+  }
+
+  const handleChangePartQuantity = ({ part, isIncrement }: { part: Part, isIncrement: boolean }) => {
+    console.log(part)
+    setSelectedPart(part)
+    setIsIncrement(isIncrement)
+    setIsOpen(true)
+  }
+
+  const onDialogClose = () => {
+    const sendQuantity = isIncrement ? Number(selectedPart?.quantity) + quantity : Number(selectedPart?.quantity) - quantity
+    if (selectedPart == null || sendQuantity === 0) {
+      alert("Hata");
+      resetDialog();
+      return;
+    }
+    LibraryApi.ChangePartQuantity(selectedPart?.id, sendQuantity).then((res: any) => {
+      if (res) {
+        LibraryApi.getParts().then((res: any) => {
+          setParts(res)
+          setSearchParts(res)
+        })
+      }
+      resetDialog()
+    })
+
+  }
+
+  const onDialogCancel = () => {
+    setIsOpen(false)
+    setSelectedPart(null)
+    setQuantity(0)
   }
 
   return (
@@ -136,7 +181,7 @@ const Parts = () => {
                           {part.name}
                         </div>
                         <div className='inline-block' style={{ width: partColumns[2].width }}>
-                          {part.shelfId}
+                          {part.shelfName}
                         </div>
                         <div className='inline-block' style={{ width: partColumns[3].width }}>
                           {part.description}
@@ -144,12 +189,54 @@ const Parts = () => {
                         <div className='inline-block' style={{ width: partColumns[4].width }}>
                           {part.quantity}
                         </div>
-                        <div className='inline-block' style={{ width: partColumns[5].width }}>
+                        <div className='flex flex-col gap-2' style={{ width: partColumns[5].width }}>
                           <div className='bg-green-600 w-[70%]  flex items-center justify-center text-gray-200 py-1 hover:text-white cursor-pointer rounded-sm'
-                            onClick={() => navigate("/parts/" + part._id)}>
+                            onClick={() => navigate("/parts/" + part.id)}>
                             Düzenle
                           </div>
+                          <div className='bg-blue-600 w-[70%]  flex items-center justify-center text-gray-200 py-1 hover:text-white cursor-pointer rounded-sm'
+                            onClick={() => { handleChangePartQuantity({ part: part, isIncrement: true }) }}>
+                            Stok Arttır
+                          </div>
+                          <div className='bg-orange-600 w-[70%]  flex items-center justify-center text-gray-200 py-1 hover:text-white cursor-pointer rounded-sm'
+                            onClick={() => { handleChangePartQuantity({ part: part, isIncrement: false }) }}>
+                            Stok Azalt
+                          </div>
                         </div>
+                        <Dialog open={isOpen} onClose={onDialogClose} >
+                          <DialogTitle>
+                            {
+                              isIncrement ? "Stok Arttır" : "Stok Azalt"
+                            }
+                          </DialogTitle>
+                          <div className='flex flex-col gap-2 p-5 text-center min-w-[400px]'>
+                            <label className='text-gray-600 font-mono'>{selectedPart?.name}</label>
+                            <label className='text-gray-600 font-mono'>Mevcut Stok: {selectedPart?.quantity}</label>
+                            <input
+                              id='quantity'
+                              name='quantity'
+                              type="number"
+                              min={0}
+                              max={selectedPart?.quantity}
+                              value={quantity}
+                              onChange={(e) => setQuantity(parseInt(e.target.value))}
+                              className='w-full h-10 font-mono border border-gray-400 focus:border-green-600 focus:border-2 focus:outline-none px-3'
+                              required
+                            />
+                            <div className='flex gap-[10%]'>
+                              <div className='bg-green-600 w-[60%]  flex items-center justify-center text-gray-200 py-1 hover:text-white cursor-pointer rounded-sm'
+                                onClick={onDialogClose}>
+                                Onayla
+                              </div>
+                              <div className='bg-red-600 w-[30%]  flex items-center justify-center text-gray-200 py-1 hover:text-white cursor-pointer rounded-sm'
+                                onClick={onDialogCancel}
+                              >
+                                İptal
+                              </div>
+                            </div>
+
+                          </div>
+                        </Dialog>
                       </div>
                     )
                   })

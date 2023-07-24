@@ -3,12 +3,10 @@ import Shelf from "../models/shelves.js";
 
 export const getParts = async (req, res) => {
     try {
-        const result = [];
         const parts = await Part.find();
-        for (let i = 0; i < parts.length; i++) {
-            const part = parts[i];
+        const result = await Promise.all(parts.map(async (part) => {
             const shelf = await Shelf.findById(part.shelfId);
-            result.push({
+            return {
                 id: part._id,
                 name: part.name,
                 description: part.description,
@@ -18,9 +16,8 @@ export const getParts = async (req, res) => {
                 image: part.image,
                 shelfName: shelf.name,
                 shelfId: shelf._id
-            });
-        }
-
+            };
+        }));
         res.status(200).json(result);
     } catch (error) {
         res.status(404).json({
@@ -29,11 +26,24 @@ export const getParts = async (req, res) => {
     }
 }
 
+
 export const getPartById = async (req, res) => {
     try {
         const part = await Part.findById(req.params.id);
-
-        res.status(200).json(part);
+        const { _id, name, description, code, price, quantity, image, shelfId } = part;
+        const shelf = await Shelf.findById(shelfId);
+        const result = {
+            id: _id,
+            name,
+            description,
+            code,
+            price,
+            quantity,
+            image,
+            shelfId,
+            shelfName: shelf.name
+        };
+        res.status(200).json(result);
     } catch (error) {
         res.status(404).json({
             message: error.message
