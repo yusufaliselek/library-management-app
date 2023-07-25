@@ -91,11 +91,20 @@ const PartDetail = () => {
     };
 
     const formSubmit = (e: any) => {
-
+        LibraryApi.updatePart(partInfo).then((res) => {
+            console.log(res, "ok");
+        }).catch((err) => {
+            console.log(err, "problem");
+            alert("Bir hata oluştu!");
+        })
+        navigate("/parts");
     }
 
     const handleChange = (e: any) => {
-
+        setPartInfo({
+            ...partInfo,
+            [e.target.name]: e.target.value
+        })
     }
 
     return (
@@ -112,7 +121,7 @@ const PartDetail = () => {
                             </div>
                             <div className='h-[40px] px-4 hover:bg-slate-200 cursor-pointer
                             flex items-center gap-3 text-sm text-green-700'
-                            onClick={openImageViewer}
+                                onClick={openImageViewer}
                             >
                                 Parça Görüntüsü
                                 <TbPhotoSensor2 size={25} />
@@ -147,8 +156,9 @@ const PartDetail = () => {
                         }
                         <div className='sm:w-5/6 2xl:w-1/2 mt-4' key={'shelfId'}>
                             <label className='text-gray-600 font-mono'>Raf Seçiniz</label>
-                            <select onChange={handleChange} value={partParams.shelfId}
-                                name="shelfId" className="w-full h-10 font-mono border border-gray-400 focus:border-green-600 focus:border-2 focus:outline-none px-3" required>
+                            <select onChange={(e) => setPartInfo({ ...partInfo, shelfId: e.target.value })} value={partInfo.shelfId}
+                                name="shelfId" className="w-full h-10 font-mono border 
+                                border-gray-400 focus:border-green-600 focus:border-2 focus:outline-none px-3" required>
                                 <option disabled value={"-1"}>Raf Seçiniz</option>
                                 {
                                     Array.from(shelves).map((item) => {
@@ -171,7 +181,7 @@ const PartDetail = () => {
                          border-gray-400 focus:outline-none px-3
                          bg-green-700 text-white hover:bg-green-600
                          transition duration-100 ease-in-out mt-4'>Kaydet</button>
-                         <button type='button' className='sm:w-4/6 2xl:w-1/3 h-10 font-mono border
+                        <button type='button' className='sm:w-4/6 2xl:w-1/3 h-10 font-mono border
                             border-gray-400 focus:outline-none px-3
                             bg-red-700 text-white hover:bg-red-600
                             transition duration-100 ease-in-out mt-4'>Sil</button>

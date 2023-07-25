@@ -93,8 +93,9 @@ const Parts = () => {
       resetDialog();
       return;
     }
-    LibraryApi.ChangePartQuantity(selectedPart?.id, sendQuantity).then((res: any) => {
-      if (res) {
+    LibraryApi.ChangePartQuantity(selectedPart?.id, sendQuantity).then((a: any) => {
+      console.log(a)
+      if (a) {
         LibraryApi.getParts().then((res: any) => {
           setParts(res)
           setSearchParts(res)
@@ -217,7 +218,6 @@ const Parts = () => {
                               name='quantity'
                               type="number"
                               min={0}
-                              max={selectedPart?.quantity}
                               value={quantity}
                               onChange={(e) => setQuantity(parseInt(e.target.value))}
                               className='w-full h-10 font-mono border border-gray-400 focus:border-green-600 focus:border-2 focus:outline-none px-3'

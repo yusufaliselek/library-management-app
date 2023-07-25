@@ -1,5 +1,5 @@
 import express from 'express';
-import { getParts, createPart, getPartById, updatePart } from '../controllers/parts.js';
+import { getParts, createPart, getPartById, updatePart, changePartQuantity } from '../controllers/parts.js';
 
 const router = express.Router();
 
@@ -12,6 +12,8 @@ router.post('/', createPart);
 router.get('/:id', getPartById);
 
 router.put('/:id', updatePart);
+
+router.put('/quantity/:id', changePartQuantity);
 
 
 export default router;

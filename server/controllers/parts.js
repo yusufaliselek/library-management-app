@@ -98,3 +98,22 @@ export const updatePart = async (req, res) => {
         });
     }
 };
+
+export const changePartQuantity = async (req, res) => {
+    const { id } = req.params;
+    const { quantity } = req.body;
+    try {
+        const part = await Part.findById(id);
+        if (!part) return res.status(404).json({ message: 'Parça bulunamadı' });
+        if (quantity == null || quantity < 0) return res.status(400).json({ message: 'Miktar negatif olamaz' });
+        part.quantity = quantity;
+        await part.save();
+        res.status(200).json(part.quantity);
+    }
+    catch (error) {
+        res.status(404).json({
+            message: error.message
+        });
+    }
+
+}
