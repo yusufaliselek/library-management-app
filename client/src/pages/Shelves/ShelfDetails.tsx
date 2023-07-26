@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Content from '../../components/Content';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
 import { LibraryApi } from '../../api/libraryApi';
+import Toast from '../../components/Toast';
 
 type ShelfParamType = {
     id: string;
@@ -39,6 +40,9 @@ const shelfParam: ShelfParamType = {
     description: '',
 };
 
+
+let shelfParts: any[] = []
+
 const ShelfDetails = () => {
     const navigate = useNavigate();
     const params: any = useParams();
@@ -50,6 +54,7 @@ const ShelfDetails = () => {
 
         LibraryApi.getShelf(id).then((res) => {
             setShelfInfo(res);
+            shelfParts = res.parts
         });
     }, [id]);
 
@@ -68,13 +73,64 @@ const ShelfDetails = () => {
         };
         LibraryApi.updateShelf(fromSend).then((res) => {
             navigate('/shelves');
-            console.log(res);
+            Toast.fire({
+                icon: 'success',
+                title: 'Raf başarıyla güncellendi!',
+                showConfirmButton: false,
+                timer: 1500
+            })
         }).catch((err) => {
-            alert('Raf güncellenirken bir hata oluştu!')
+            Toast.fire({
+                icon: 'error',
+                title: 'Raf güncellenirken bir hata oluştu!',
+                showConfirmButton: false,
+                timer: 1500
+            })
             console.log(err);
         });
 
     };
+
+    const deleteAction = () => {
+        LibraryApi.deleteShelf(shelfInfo.id).then((res) => {
+            navigate('/shelves');
+            Toast.fire({
+                icon: 'success',
+                title: 'Raf başarıyla silindi!',
+                showConfirmButton: false,
+                timer: 1500
+            })
+        }).catch((err) => {
+            Toast.fire({
+                icon: 'error',
+                title: 'Raf silinirken bir hata oluştu!',
+                showConfirmButton: false,
+                timer: 1500
+            })
+            console.log(err);
+        });
+    }
+
+    const deleteShelf = () => {
+        const firstQuestion = window.confirm('Rafı silmek istediğinize emin misiniz?');
+        if (firstQuestion) {
+            if (shelfParts.length === 0) {
+                const secondQuestion = window.confirm(`${shelfInfo.name} isimli rafı silmek istediğinize emin misiniz?`)
+                if (secondQuestion) {
+                    deleteAction();
+                }
+                return
+            }
+            const partsString = shelfParts.map((part) => part.name).join(', ')
+
+            const secondQuestion = window.confirm(`${shelfInfo.name} isimli rafı silmek istediğinize emin misiniz? \n\n Bu rafın içindeki parçalar: ${partsString}`)
+            if (secondQuestion) {
+                deleteAction();
+            }
+        } else {
+            return;
+        }
+    }
 
     return (
         <Content pageName='Raflar' content={
@@ -121,12 +177,7 @@ const ShelfDetails = () => {
                         border-gray-400 focus:outline-none px-3
                         bg-red-700 text-white hover:bg-red-600
                         transition duration-100 ease-in-out mt-4'
-                            onClick={() => {
-                                const confirm = window.confirm('Rafı silmek istediğinize emin misiniz?');
-                                if (confirm) {
-                                    alert('Raf silindi!');
-                                }
-                            }}
+                            onClick={deleteShelf}
                         >
                             Sil
                         </button>

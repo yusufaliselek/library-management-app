@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 
 import partsRoutes from './routes/parts.js';
 import shelvesRoutes from './routes/shelves.js';
+import partImagesRoutes from './routes/partImages.js';
+import homeRoutes from './routes/home.js';
 
 const app = express();
 dotenv.config();
@@ -21,8 +23,10 @@ app.get("/", (req, res) => {
     });
 });
 
+app.use("/home", homeRoutes);
 app.use("/parts", partsRoutes);
 app.use("/shelves", shelvesRoutes);
+app.use("/partImages", partImagesRoutes);
 
 
 const PORT = process.env.PORT || 5000;

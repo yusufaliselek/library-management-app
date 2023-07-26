@@ -1,20 +1,25 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { MdShelves } from 'react-icons/md';
+import { AiOutlineHome, AiOutlinePartition } from 'react-icons/ai';
 
 const Navbar = ({ pageName }: { pageName: string }) => {
 
     const navItems = [
         {
             name: 'Ana Sayfa',
-            path: '/'
+            path: '/',
+            icon: <AiOutlineHome size={25} />
         },
         {
             name: 'Raflar',
-            path: '/shelves'
+            path: '/shelves',
+            icon: <MdShelves size={25} />
         },
         {
             name: "Parçalar",
-            path: '/parts'
+            path: '/parts',
+            icon: <AiOutlinePartition size={25} />
         }
     ]
 
@@ -23,10 +28,11 @@ const Navbar = ({ pageName }: { pageName: string }) => {
             <div className='flex gap-x-8'>
                 {navItems.map((item) =>
                     <Link to={item.path} key={item.name}>
-                        <div className={`px-2 py-1 font-mono
+                        <div className={`px-2 py-1 font-mono flex items-center gap-x-2
                 ${item.name === pageName ? "bg-green-600 text-white font-normal" : " bg-green-700 text-gray-200 hover:bg-green-600 hover:text-gray-100"}
                 transition duration-200 ease-in-out rounded-sm`}>
-                            {item.name}
+                            <>{item.icon}</>
+                            <>{item.name}</>
                         </div>
                     </Link>
                 )}

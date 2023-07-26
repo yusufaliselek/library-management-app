@@ -32,11 +32,13 @@ export const getShelves = async (req, res) => {
 export const getShelfById = async (req, res) => {
     try {
         const shelf = await Shelf.findById(req.params.id);
+        const parts = await Part.find({ shelfId: shelf._id });
         const result = {
             id: shelf._id,
             name: shelf.name,
             description: shelf.description,
-            code: shelf.code
+            code: shelf.code,
+            parts: parts
         };
 
         res.status(200).json(result);
@@ -82,6 +84,29 @@ export const updateShelf = async (req, res) => {
         await existingShelf.save();
 
         res.status(200).json(existingShelf);
+    } catch (error) {
+        res.status(404).json({
+            message: error.message
+        });
+    }
+}
+
+
+export const deleteShelf = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // İlk olarak silinmek istenen rafın mevcut verisini alıyoruz
+        const existingShelf = await Shelf.findById(id);
+
+        if (!existingShelf) {
+            return res.status(404).json({ message: 'Raf bulunamadı' });
+        }
+
+        // Silinmek istenen rafı siliyoruz
+        await existingShelf.deleteOne();
+
+        res.status(200).json({ message: 'Raf silindi' });
     } catch (error) {
         res.status(404).json({
             message: error.message

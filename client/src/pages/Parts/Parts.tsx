@@ -5,6 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { LibraryApi } from '../../api/libraryApi';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
+import MySwal, { Toast } from '../../components/Toast';
+import { BsCardImage } from 'react-icons/bs';
+import ImageViewer from 'react-simple-image-viewer';
 
 interface Part {
   id: string,
@@ -51,6 +54,17 @@ const partColumns = [
   }
 ]
 
+interface IImageViewerParams {
+  isViewerOpen: boolean;
+  image: string;
+}
+
+const imageViewerParamsInit: IImageViewerParams = {
+  isViewerOpen: false,
+  image: '',
+};
+
+
 const Parts = () => {
 
   const navigate = useNavigate();
@@ -61,6 +75,7 @@ const Parts = () => {
   const [selectedPart, setSelectedPart] = useState<Part | null>(null)
   const [isIncrement, setIsIncrement] = useState<boolean>(false)
   const [quantity, setQuantity] = useState<number>(0)
+  const [imageViewerParams, setImageViewerParams] = useState(imageViewerParamsInit);
 
   useEffect(() => {
     LibraryApi.getParts().then((res: any) => {
@@ -86,10 +101,36 @@ const Parts = () => {
     setIsOpen(true)
   }
 
+  const handleViewImage = (id: string) => {
+    Toast.fire({
+      icon: 'info',
+      title: 'Yükleniyor...',
+      timer: 10000,
+    })
+    LibraryApi.GetPartImage(id).then((res: string) => {
+      setImageViewerParams({
+        isViewerOpen: true,
+        image: res
+      })
+      Toast.close()
+    })
+  }
+
+  const closeImageViewer = () => {
+    setImageViewerParams({
+      isViewerOpen: false,
+      image: ''
+    })
+  }
+
   const onDialogClose = () => {
     const sendQuantity = isIncrement ? Number(selectedPart?.quantity) + quantity : Number(selectedPart?.quantity) - quantity
     if (selectedPart == null || sendQuantity === 0) {
-      alert("Hata");
+      MySwal.fire({
+        icon: 'error',
+        title: 'Hata',
+        text: 'Bir hata oluştu. Lütfen tekrar deneyin.'
+      })
       resetDialog();
       return;
     }
@@ -143,7 +184,7 @@ const Parts = () => {
 
         <div className="border rounded-lg flex flex-col">
           <div className='bg-gray-100 rounded-t-lg border'>
-            <div className='w-[calc(100%-18px)] px-5 py-3 font-sans font-medium'>
+            <div className='w-[calc(100%-18px)] px-5 py-3 font-sans lg:font-medium'>
               {
                 Array.from(partColumns).map((column, index) => {
                   return (
@@ -191,6 +232,11 @@ const Parts = () => {
                           {part.quantity}
                         </div>
                         <div className='flex flex-col gap-2' style={{ width: partColumns[5].width }}>
+                          <div className='bg-blue-500 w-[70%] flex items-center justify-center text-gray-200 py-1 hover:text-white cursor-pointer rounded-sm'
+                            onClick={() => handleViewImage(part.id)}
+                          >
+                            <BsCardImage size={18} />
+                          </div>
                           <div className='bg-green-600 w-[70%]  flex items-center justify-center text-gray-200 py-1 hover:text-white cursor-pointer rounded-sm'
                             onClick={() => navigate("/parts/" + part.id)}>
                             Düzenle
@@ -237,6 +283,15 @@ const Parts = () => {
 
                           </div>
                         </Dialog>
+                        {imageViewerParams.isViewerOpen && (
+                          <ImageViewer
+                            src={[imageViewerParams.image || '']}
+                            currentIndex={0}
+                            disableScroll={false}
+                            closeOnClickOutside={true}
+                            onClose={closeImageViewer}
+                          />
+                        )}
                       </div>
                     )
                   })

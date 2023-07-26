@@ -7,6 +7,8 @@ import { AiOutlineArrowLeft } from 'react-icons/ai';
 import { TbPhotoSensor2 } from 'react-icons/tb';
 import ImageViewer from 'react-simple-image-viewer';
 import { IShelf } from '../../types/Interfaces';
+import { ScaleLoader } from 'react-spinners';
+import Toast from '../../components/Toast';
 
 type PartParamType = {
     id: string;
@@ -54,7 +56,7 @@ const partParams: PartParamType = {
     code: '',
     name: '',
     description: '',
-    shelfId: '',
+    shelfId: '-1',
     shelfName: '',
     image: '',
     price: '',
@@ -91,11 +93,19 @@ const PartDetail = () => {
     };
 
     const formSubmit = (e: any) => {
-        LibraryApi.updatePart(partInfo).then((res) => {
-            console.log(res, "ok");
+        LibraryApi.UpdatePart(partInfo).then((res) => {
+            Toast.fire({
+                icon: 'success',
+                title: 'Başarılı!',
+                text: 'Parça güncellendi!',
+            })
         }).catch((err) => {
             console.log(err, "problem");
-            alert("Bir hata oluştu!");
+            Toast.fire({
+                icon: 'error',
+                title: 'Hata!',
+                text: 'Parça güncellenirken bir hata oluştu!',
+            })
         })
         navigate("/parts");
     }
@@ -107,87 +117,110 @@ const PartDetail = () => {
         })
     }
 
+    const handleDelete = () => {
+        const isConfirm = window.confirm("Bu parçayı silmek istediğinize emin misiniz?");
+        if (isConfirm) {
+            LibraryApi.DeletePart(id).then((res) => {
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Başarılı!',
+                    text: 'Parça silindi!',
+                })
+            }).catch((err) => {
+                console.log(err, "problem");
+
+            })
+            navigate("/parts");
+        }
+    }
+
     return (
         <Content pageName='Parçalar' content={
             <div className='w-full sm:h-[calc(100vh-4rem)]  bg-opacity-10 flex items-center justify-center'>
                 {/* Shelve Informations */}
-                <div className='w-2/3 h-3/4 overflow-auto'>
-                    <form onSubmit={formSubmit} className='flex flex-col items-center '>
-                        <div className='sm:w-5/6 2xl:w-1/2 flex justify-between items-center'>
-                            <div className='w-fit cursor-pointer p-3 hover:bg-gray-200'
-                                onClick={() => navigate("/parts")}
-                            >
-                                <AiOutlineArrowLeft />
-                            </div>
-                            <div className='h-[40px] px-4 hover:bg-slate-200 cursor-pointer
+                {
+                    !partInfo.id ?
+                        <ScaleLoader color='#10B981' loading={true} height={35} width={4} radius={2} margin={4} />
+                        :
+                        <div className='w-2/3 h-3/4 overflow-auto'>
+                            <form onSubmit={formSubmit} className='flex flex-col items-center '>
+                                <div className='sm:w-5/6 2xl:w-1/2 flex justify-between items-center'>
+                                    <div className='w-fit cursor-pointer p-3 hover:bg-gray-200'
+                                        onClick={() => navigate("/parts")}
+                                    >
+                                        <AiOutlineArrowLeft />
+                                    </div>
+                                    <div className='h-[40px] px-4 hover:bg-slate-200 cursor-pointer
                             flex items-center gap-3 text-sm text-green-700'
-                                onClick={openImageViewer}
-                            >
-                                Parça Görüntüsü
-                                <TbPhotoSensor2 size={25} />
-                            </div>
-                            {isViewerOpen && (
-                                <ImageViewer
-                                    src={[partInfo.image || '']}
-                                    currentIndex={0}
-                                    disableScroll={false}
-                                    closeOnClickOutside={true}
-                                    onClose={closeImageViewer}
-                                />
-                            )}
-                        </div>
-                        <h1 className='text-3xl font-mono text-center text-gray-600'>Parça Bilgilerini Düzenle</h1>
-                        {
-                            partInfoLabel.map((item) => (
-                                <div className='sm:w-5/6 2xl:w-1/2 mt-4' key={item.name}>
-                                    <label className='text-gray-600 font-mono'>{item.label}</label>
-                                    <input
-                                        id={item.name}
-                                        name={item.name}
-                                        value={partInfo[item.name]}
-                                        type="text"
-                                        className='w-full h-10 font-mono border border-gray-400 focus:border-green-600 focus:border-2 focus:outline-none px-3'
-                                        onChange={handleChange}
-                                        required
-                                        {...(item.name === 'id' && { disabled: true })}
-                                    />
+                                        onClick={openImageViewer}
+                                    >
+                                        Parça Görüntüsü
+                                        <TbPhotoSensor2 size={25} />
+                                    </div>
+                                    {isViewerOpen && (
+                                        <ImageViewer
+                                            src={[partInfo.image || '']}
+                                            currentIndex={0}
+                                            disableScroll={false}
+                                            closeOnClickOutside={true}
+                                            onClose={closeImageViewer}
+                                        />
+                                    )}
                                 </div>
-                            ))
-                        }
-                        <div className='sm:w-5/6 2xl:w-1/2 mt-4' key={'shelfId'}>
-                            <label className='text-gray-600 font-mono'>Raf Seçiniz</label>
-                            <select onChange={(e) => setPartInfo({ ...partInfo, shelfId: e.target.value })} value={partInfo.shelfId}
-                                name="shelfId" className="w-full h-10 font-mono border 
-                                border-gray-400 focus:border-green-600 focus:border-2 focus:outline-none px-3" required>
-                                <option disabled value={"-1"}>Raf Seçiniz</option>
+                                <h1 className='text-3xl font-mono text-center text-gray-600'>Parça Bilgilerini Düzenle</h1>
                                 {
-                                    Array.from(shelves).map((item) => {
-                                        return (
-                                            <option key={item.id} value={item.id}>{item.name}</option>
-                                        )
-                                    })
+                                    partInfoLabel.map((item) => (
+                                        <div className='sm:w-5/6 2xl:w-1/2 mt-4' key={item.name}>
+                                            <label className='text-gray-600 font-mono'>{item.label}</label>
+                                            <input
+                                                id={item.name}
+                                                name={item.name}
+                                                value={partInfo[item.name]}
+                                                type="text"
+                                                className='w-full h-10 font-mono border border-gray-400 focus:border-green-600 focus:border-2 focus:outline-none px-3'
+                                                onChange={handleChange}
+                                                required
+                                                {...(item.name === 'id' && { disabled: true })}
+                                            />
+                                        </div>
+                                    ))
                                 }
-                            </select>
-                        </div>
-                        <div className='mt-2'>
-                            <Base64 onDone={(e: any) => {
-                                setPartInfo({
-                                    ...partInfo,
-                                    image: e.base64
-                                });
-                            }} />
-                        </div>
-                        <button type='submit' className='sm:w-4/6 2xl:w-1/3 h-10 font-mono border
+                                <div className='sm:w-5/6 2xl:w-1/2 mt-4' key={'shelfId'}>
+                                    <label className='text-gray-600 font-mono'>Raf Seçiniz</label>
+                                    <select onChange={(e) => setPartInfo({ ...partInfo, shelfId: e.target.value })} value={partInfo.shelfId}
+                                        name="shelfId" className="w-full h-10 font-mono border 
+                                border-gray-400 focus:border-green-600 focus:border-2 focus:outline-none px-3" required>
+                                        <option value={"-1"}>Raf Seçiniz</option>
+                                        {
+                                            Array.from(shelves).map((item) => {
+                                                return (
+                                                    <option key={item.id} value={item.id}>{item.name}</option>
+                                                )
+                                            })
+                                        }
+                                    </select>
+                                </div>
+                                <div className='mt-2'>
+                                    <Base64 onDone={(e: any) => {
+                                        setPartInfo({
+                                            ...partInfo,
+                                            image: e.base64
+                                        });
+                                    }} />
+                                </div>
+                                <button type='submit' className='sm:w-4/6 2xl:w-1/3 h-10 font-mono border
                          border-gray-400 focus:outline-none px-3
                          bg-green-700 text-white hover:bg-green-600
                          transition duration-100 ease-in-out mt-4'>Kaydet</button>
-                        <button type='button' className='sm:w-4/6 2xl:w-1/3 h-10 font-mono border
+                                <button type='button' onClick={handleDelete} className='sm:w-4/6 2xl:w-1/3 h-10 font-mono border
                             border-gray-400 focus:outline-none px-3
                             bg-red-700 text-white hover:bg-red-600
                             transition duration-100 ease-in-out mt-4'>Sil</button>
 
-                    </form>
-                </div>
+                            </form>
+                        </div>
+                }
+
             </div>
         } />
     );

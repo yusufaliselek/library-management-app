@@ -33,7 +33,7 @@ export class LibraryApi {
         });
     }
 
-    public static async updatePart(part: any): Promise<any> {
+    public static async UpdatePart(part: any): Promise<any> {
         return new Promise((resolve, reject) => {
             ConfigApi.LibraryApi().put(`parts/${part.id}`, part).then((response) => {
                 resolve(response.data);
@@ -46,6 +46,26 @@ export class LibraryApi {
     public static async ChangePartQuantity(partId: string, quantity: number): Promise<any> {
         return new Promise((resolve, reject) => {
             ConfigApi.LibraryApi().put(`parts/quantity/${partId}`, { quantity: quantity }).then((response) => {
+                resolve(response.data);
+            }).catch((error) => {
+                reject(error);
+            });
+        });
+    }
+
+    public static async DeletePart(partId: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            ConfigApi.LibraryApi().delete(`parts/${partId}`).then((response) => {
+                resolve(response.data);
+            }).catch((error) => {
+                reject(error);
+            });
+        });
+    }
+
+    public static GetPartImage(partId: string): Promise<string> {
+        return new Promise((resolve, reject) => {
+            ConfigApi.LibraryApi().get(`partImages/${partId}`).then((response) => {
                 resolve(response.data);
             }).catch((error) => {
                 reject(error);
@@ -87,6 +107,27 @@ export class LibraryApi {
     public static async updateShelf(shelf: any): Promise<any> {
         return new Promise((resolve, reject) => {
             ConfigApi.LibraryApi().put(`shelves/${shelf.id}`, shelf).then((response) => {
+                resolve(response.data);
+            }).catch((error) => {
+                reject(error);
+            });
+        });
+    }
+
+    public static async deleteShelf(shelfId: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            ConfigApi.LibraryApi().delete(`shelves/${shelfId}`).then((response) => {
+                resolve(response.data);
+            }).catch((error) => {
+                reject(error);
+            });
+        });
+    }
+
+    // Home Chart API
+    public static async GetHomeChart(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            ConfigApi.LibraryApi().get('home').then((response) => {
                 resolve(response.data);
             }).catch((error) => {
                 reject(error);

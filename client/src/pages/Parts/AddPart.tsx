@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Base64 from '../../components/Base64';
 import { LibraryApi } from '../../api/libraryApi';
 import { IShelf } from '../../types/Interfaces';
+import MySwal from '../../components/Toast';
 
 const shelfInfoLabel = [
 
@@ -65,10 +66,22 @@ const AddPart = () => {
     const formSubmit = (e: any) => {
         e.preventDefault();
         LibraryApi.createPart(formValues).then((res: any) => {
-            alert("Parça başarıyla eklendi");
+            MySwal.fire({
+                icon: 'success',
+                title: 'Başarılı',
+                text: 'Parça başarıyla eklendi',
+                timer: 2000,
+                showConfirmButton: false
+            })
             navigate("/parts");
         }).catch((err: any) => {
-            alert("Parça eklenirken bir hata oluştu");
+            MySwal.fire({
+                icon: 'error',
+                title: 'Hata',
+                text: 'Parça eklenirken bir hata oluştu',
+                timer: 2000,
+                showConfirmButton: false
+            })
         })
         setFormValues(shelfParams); // Formu sıfırlar
     };

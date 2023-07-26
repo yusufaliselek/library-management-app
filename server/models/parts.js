@@ -6,7 +6,6 @@ const partSchema = mongoose.Schema({
     code: String,
     price: String,
     quantity: String,
-    image: String,
     shelfId: String,
     createdAt: {
         type: Date,
