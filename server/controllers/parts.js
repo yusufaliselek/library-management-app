@@ -1,9 +1,16 @@
 import Part from "../models/parts.js";
 import PartImage from "../models/partImages.js";
 import Shelf from "../models/shelves.js";
+import Token from "../models/tokens.js";
 
 export const getParts = async (req, res) => {
     try {
+        const token = await Token.find({ token: req.headers.authorization });
+        if (!token[0]) {
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
         const parts = await Part.find();
         const result = await Promise.all(parts.map(async (part) => {
             let shelf = await Shelf.findById(part.shelfId);
@@ -35,6 +42,12 @@ export const getParts = async (req, res) => {
 
 export const getPartById = async (req, res) => {
     try {
+        const token = await Token.find({ token: req.headers.authorization });
+        if (!token[0]) {
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
         const part = await Part.findById(req.params.id);
         const { _id, name, description, code, price, quantity, shelfId } = part;
         const partImage = await PartImage.find({ partId: _id });
@@ -79,6 +92,12 @@ export const createPart = async (req, res) => {
         image: req.body.image
     });
     try {
+        const token = await Token.find({ token: req.headers.authorization });
+        if (!token[0]) {
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
         await newPart.save();
         await newPartImage.save();
         res.status(201).json(newPart);
@@ -96,6 +115,12 @@ export const updatePart = async (req, res) => {
     const updatedPartData = req.body;
 
     try {
+        const token = await Token.find({ token: req.headers.authorization });
+        if (!token[0]) {
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
         // İlk olarak güncellenmek istenen parçanın mevcut verisini alıyoruz
         const existingPart = await Part.findById(id);
         let existingPartImage = await PartImage.find({ partId: id })[0];
@@ -142,6 +167,12 @@ export const changePartQuantity = async (req, res) => {
     const { id } = req.params;
     const { quantity } = req.body;
     try {
+        const token = await Token.find({ token: req.headers.authorization });
+        if (!token[0]) {
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
         const part = await Part.findById(id);
         if (!part) return res.status(404).json({ message: 'Parça bulunamadı' });
         if (quantity == null || quantity < 0) return res.status(400).json({ message: 'Miktar negatif olamaz' });
@@ -160,6 +191,12 @@ export const changePartQuantity = async (req, res) => {
 
 export const deletePart = async (req, res) => {
     try {
+        const token = await Token.find({ token: req.headers.authorization });
+        if (!token[0]) {
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
         const part = await Part.findByIdAndDelete(req.params.id);
         const partImage = await PartImage.find({ partId: req.params.id });
         if (!part) {

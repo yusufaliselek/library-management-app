@@ -1,7 +1,14 @@
 import PartImage from "../models/partImages.js";
+import Token from "../models/tokens.js";
 
 export const getPartImageById = async (req, res) => {
     try {
+        const token = await Token.find({ token: req.headers.authorization });
+        if (!token[0]) {
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
         const partImage = await PartImage.find({ partId: req.params.id });
         if (!partImage[0]) {
             partImage[0] = new PartImage({

@@ -4,6 +4,7 @@ import { IShelf } from '../../types/Interfaces';
 import { BiSearch } from 'react-icons/bi'
 import { useNavigate } from 'react-router-dom';
 import { LibraryApi } from '../../api/libraryApi';
+import Toast from '../../components/Toast';
 
 
 const Shelves = () => {
@@ -43,6 +44,16 @@ const Shelves = () => {
         LibraryApi.getShelves().then((response) => {
             setShelves(response)
             setSearchShelves(response)
+        }).catch((err) => {
+            if (err.response.status === 401) {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Yetkisiz Erişim',
+                    text: 'Bu sayfayı görüntülemek için yetkiniz bulunmamaktadır.'
+                })
+                navigate('/login')
+                return;
+            }
         })
 
 

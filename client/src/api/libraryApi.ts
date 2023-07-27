@@ -134,4 +134,15 @@ export class LibraryApi {
             });
         });
     }
+
+    // Users API
+    public static async Login(user: any): Promise<any> {
+        return new Promise((resolve, reject) => {
+            ConfigApi.LibraryApi().post('login', user).then((response) => {
+                resolve(response.data);
+            }).catch((error) => {
+                reject(error);
+            });
+        });
+    }
 }

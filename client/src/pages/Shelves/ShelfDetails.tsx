@@ -55,6 +55,16 @@ const ShelfDetails = () => {
         LibraryApi.getShelf(id).then((res) => {
             setShelfInfo(res);
             shelfParts = res.parts
+        }).catch((err: any) => {
+            // Eğer Unauthorized ise aşağıdaki kod çalışacak
+            if (err.response.status === 401) {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Yetkisiz Erişim',
+                    text: 'Bu sayfayı görüntülemek için yetkiniz bulunmamaktadır.'
+                })
+                navigate('/login')
+            }
         });
     }, [id]);
 
@@ -80,6 +90,16 @@ const ShelfDetails = () => {
                 timer: 1500
             })
         }).catch((err) => {
+            // Eğer Unauthorized ise aşağıdaki kod çalışacak
+            if (err.response.status === 401) {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Yetkisiz Erişim',
+                    text: 'Bu sayfayı görüntülemek için yetkiniz bulunmamaktadır.'
+                })
+                navigate('/login')
+                return;
+            }
             Toast.fire({
                 icon: 'error',
                 title: 'Raf güncellenirken bir hata oluştu!',
@@ -101,6 +121,15 @@ const ShelfDetails = () => {
                 timer: 1500
             })
         }).catch((err) => {
+            if (err.response.status === 401) {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Yetkisiz Erişim',
+                    text: 'Bu sayfayı görüntülemek için yetkiniz bulunmamaktadır.'
+                })
+                navigate('/login')
+                return;
+            }
             Toast.fire({
                 icon: 'error',
                 title: 'Raf silinirken bir hata oluştu!',

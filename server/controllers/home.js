@@ -1,8 +1,15 @@
 import Shelf from "../models/shelves.js";
 import Part from "../models/parts.js";
+import Token from "../models/tokens.js";
 
 export const getHome = async (req, res) => {
     try {
+        const token = await Token.find({ token: req.headers.authorization });
+        if (!token[0]) {
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
         const returnData = {};
         const shelves = await Shelf.find();
         returnData.labels = shelves.map((shelf) => shelf.name);

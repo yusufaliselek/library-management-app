@@ -8,6 +8,7 @@ import partsRoutes from './routes/parts.js';
 import shelvesRoutes from './routes/shelves.js';
 import partImagesRoutes from './routes/partImages.js';
 import homeRoutes from './routes/home.js';
+import usersRoutes from './routes/users.js';
 
 const app = express();
 dotenv.config();
@@ -27,6 +28,7 @@ app.use("/home", homeRoutes);
 app.use("/parts", partsRoutes);
 app.use("/shelves", shelvesRoutes);
 app.use("/partImages", partImagesRoutes);
+app.use("/login", usersRoutes)
 
 
 const PORT = process.env.PORT || 5000;

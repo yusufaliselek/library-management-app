@@ -8,6 +8,7 @@ import ShelfDetails from '../pages/Shelves/ShelfDetails'
 import AddShelf from '../pages/Shelves/AddShelf';
 import AddPart from '../pages/Parts/AddPart';
 import PartDetail from '../pages/Parts/PartDetail';
+import Login from '../pages/Login/Login';
 
 const AppRouter = () => {
     return (
@@ -16,6 +17,9 @@ const AppRouter = () => {
 
                 {/* Home */}
                 <Route path="/" element={<Home />} />
+
+                {/* Login */}
+                <Route path="/login" element={<Login />} /> 
 
 
                 {/* Shelves */}

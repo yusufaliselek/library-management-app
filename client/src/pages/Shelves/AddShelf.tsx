@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Content from '../../components/Content';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
 import { LibraryApi } from '../../api/libraryApi';
+import Toast from '../../components/Toast';
 
 const shelfInfoLabel = [
     {
@@ -44,10 +45,33 @@ const AddShelf = () => {
         LibraryApi.createShelf(formValues).then((response) => {
             console.log(response)
             navigate('/shelves')
+        }).catch((err: any) => {
+            // Eğer Unauthorized ise aşağıdaki kod çalışacak
+            if (err.response.status === 401) {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Yetkisiz Erişim',
+                    text: 'Bu sayfayı görüntülemek için yetkiniz bulunmamaktadır.'
+                })
+                navigate('/login')
+            }
         })
 
         setFormValues(shelfParams); // Formu sıfırlar
     };
+
+    useEffect(() => {
+        // Token kontrolü
+        const token = localStorage.getItem('token');
+        if (!token) {
+            Toast.fire({
+                icon: 'error',
+                title: 'Yetkisiz Erişim',
+                text: 'Bu sayfayı görüntülemek için yetkiniz bulunmamaktadır.'
+            })
+            navigate('/login')
+        }
+    }, []);
 
     return (
         <Content pageName='Raflar' content={

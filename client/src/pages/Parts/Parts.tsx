@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { LibraryApi } from '../../api/libraryApi';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
-import MySwal, { Toast } from '../../components/Toast';
+import { Toast } from '../../components/Toast';
 import { BsCardImage } from 'react-icons/bs';
 import ImageViewer from 'react-simple-image-viewer';
 
@@ -81,6 +81,16 @@ const Parts = () => {
     LibraryApi.getParts().then((res: any) => {
       setParts(res)
       setSearchParts(res)
+    }).catch((err: any) => {
+      // Eğer Unauthorized ise aşağıdaki kod çalışacak
+      if (err.response.status === 401) {
+        Toast.fire({
+          icon: 'error',
+          title: 'Yetkisiz Erişim',
+          text: 'Bu sayfayı görüntülemek için yetkiniz bulunmamaktadır.'
+        })
+        navigate('/login')
+      }
     })
   }, [])
 
@@ -113,6 +123,16 @@ const Parts = () => {
         image: res
       })
       Toast.close()
+    }).catch((err: any) => {
+      // Eğer Unauthorized ise aşağıdaki kod çalışacak
+      if (err.response.status === 401) {
+        Toast.fire({
+          icon: 'error',
+          title: 'Yetkisiz Erişim',
+          text: 'Bu sayfayı görüntülemek için yetkiniz bulunmamaktadır.'
+        })
+        navigate('/login')
+      }
     })
   }
 
@@ -126,7 +146,7 @@ const Parts = () => {
   const onDialogClose = () => {
     const sendQuantity = isIncrement ? Number(selectedPart?.quantity) + quantity : Number(selectedPart?.quantity) - quantity
     if (selectedPart == null || sendQuantity === 0) {
-      MySwal.fire({
+      Toast.fire({
         icon: 'error',
         title: 'Hata',
         text: 'Bir hata oluştu. Lütfen tekrar deneyin.'
@@ -143,6 +163,16 @@ const Parts = () => {
         })
       }
       resetDialog()
+    }).catch((err: any) => {
+      // Eğer Unauthorized ise aşağıdaki kod çalışacak
+      if (err.response.status === 401) {
+        Toast.fire({
+          icon: 'error',
+          title: 'Yetkisiz Erişim',
+          text: 'Bu sayfayı görüntülemek için yetkiniz bulunmamaktadır.'
+        })
+        navigate('/login')
+      }
     })
 
   }

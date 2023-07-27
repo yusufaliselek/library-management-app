@@ -1,9 +1,16 @@
 import Shelf from "../models/shelves.js";
 import Part from "../models/parts.js";
+import Token from "../models/tokens.js";
 
 
 export const getShelves = async (req, res) => {
     try {
+        const token = await Token.find({ token: req.headers.authorization });
+        if (!token[0]) {
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
         const result = [];
         const shelves = await Shelf.find();
         for (let i = 0; i < shelves.length; i++) {
@@ -31,6 +38,12 @@ export const getShelves = async (req, res) => {
 
 export const getShelfById = async (req, res) => {
     try {
+        const token = await Token.find({ token: req.headers.authorization });
+        if (!token[0]) {
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
         const shelf = await Shelf.findById(req.params.id);
         const parts = await Part.find({ shelfId: shelf._id });
         const result = {
@@ -52,6 +65,12 @@ export const getShelfById = async (req, res) => {
 export const createShelf = async (req, res) => {
     const newShelf = new Shelf(req.body);
     try {
+        const token = await Token.find({ token: req.headers.authorization });
+        if (!token[0]) {
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
         await newShelf.save();
         res.status(201).json(newShelf);
     }
@@ -68,6 +87,12 @@ export const updateShelf = async (req, res) => {
     const updatedShelfData = req.body;
 
     try {
+        const token = await Token.find({ token: req.headers.authorization });
+        if (!token[0]) {
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
         // İlk olarak güncellenmek istenen parçanın mevcut verisini alıyoruz
         const existingShelf = await Shelf.findById(id);
 
@@ -96,6 +121,12 @@ export const deleteShelf = async (req, res) => {
     const { id } = req.params;
 
     try {
+        const token = await Token.find({ token: req.headers.authorization });
+        if (!token[0]) {
+            return res.status(401).json({
+                message: 'Unauthorized'
+            });
+        }
         // İlk olarak silinmek istenen rafın mevcut verisini alıyoruz
         const existingShelf = await Shelf.findById(id);
 

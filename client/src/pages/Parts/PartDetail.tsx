@@ -100,6 +100,15 @@ const PartDetail = () => {
                 text: 'Parça güncellendi!',
             })
         }).catch((err) => {
+            // Eğer Unauthorized ise aşağıdaki kod çalışacak
+            if (err.response.status === 401) {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Yetkisiz Erişim',
+                    text: 'Bu sayfayı görüntülemek için yetkiniz bulunmamaktadır.'
+                })
+                navigate('/login')
+            }
             console.log(err, "problem");
             Toast.fire({
                 icon: 'error',
@@ -126,9 +135,16 @@ const PartDetail = () => {
                     title: 'Başarılı!',
                     text: 'Parça silindi!',
                 })
-            }).catch((err) => {
-                console.log(err, "problem");
-
+            }).catch((err: any) => {
+                // Eğer Unauthorized ise aşağıdaki kod çalışacak
+                if (err.response.status === 401) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Yetkisiz Erişim',
+                        text: 'Bu sayfayı görüntülemek için yetkiniz bulunmamaktadır.'
+                    })
+                    navigate('/login')
+                }
             })
             navigate("/parts");
         }
